@@ -7,4 +7,12 @@
     <string name="sign_up">Sign Up</string>
     <string name="home">Home</string>
     <string name="profile">Profile</string>
+    <string name="profile_email_label">Email:</string>
+    <string name="username_hint">Enter your username</string>
+    <string name="logout_button">Logout</string>
+    <string name="delete_account_button">Delete Account</string>
+    <string name="add_payment_button">Add Payment Method</string>
+    <string name="help_button">Help</string>
+    <string name="username_label">Username:</string>
+    <string name="save_username_button">Save Username</string>
 </resources>

@@ -9,6 +9,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -32,9 +33,12 @@ import com.google.firebase.auth.FirebaseUser;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = "MainActivity";
+
     ViewPager viewPager;
     ViewPagerAdapter viewPagerAdapter;
-    BubbleToggleView l_item_cart;
+    BubbleToggleView l_item_cart,l_item_profile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
         FirebaseApp.initializeApp(this);
         viewPager = findViewById(R.id.view_pager);
         l_item_cart = findViewById(R.id.l_item_cart);
+        l_item_profile = findViewById(R.id.l_item_profile);
 
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         viewPagerAdapter.addFragment(new HomeFragment());
@@ -53,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
         viewPagerAdapter.addFragment(new ProfileFragment());
 
         viewPager.setAdapter(viewPagerAdapter);
+
         final BubbleNavigationLinearView bubbleNavigationLinearView = findViewById(R.id.bottom_navigation_view_linear);
         bubbleNavigationLinearView.setTypeface(Typeface.createFromAsset(getAssets(), "rubik.ttf"));
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -60,25 +66,25 @@ public class MainActivity extends AppCompatActivity {
         bubbleNavigationLinearView.setBadgeValue(1, null);
         if (currentUser != null){
             bubbleNavigationLinearView.setBadgeValue(2, null);
-        }else {
+        } else {
             bubbleNavigationLinearView.setBadgeValue(2, "");
         }
+
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(v -> {
-                if (isNetworkAvailable()) {
-                    if (currentUser != null) {
-                        startActivity(new Intent(MainActivity.this, CategoryActivity.class));
-                        Animations.animateSlideUp(MainActivity.this);
-                    } else {
-                        Toast.makeText(this, "Please login first!", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(MainActivity.this, LoginActivity.class));
-                        finish();
-                    }
+            if (isNetworkAvailable()) {
+                if (currentUser != null) {
+                    startActivity(new Intent(MainActivity.this, CategoryActivity.class));
+                    Animations.animateSlideUp(MainActivity.this);
                 } else {
-                    showNoInternetDialog();
+                    Toast.makeText(this, "Please login first!", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                    finish();
                 }
+            } else {
+                showNoInternetDialog();
+            }
         });
-
 
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -96,7 +102,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        bubbleNavigationLinearView.setNavigationChangeListener((view, position) -> viewPager.setCurrentItem(position, true));
+        bubbleNavigationLinearView.setNavigationChangeListener((view, position) -> {
+            Log.d(TAG, "NavigationChange Position: " + position);
+            if (viewPager.getCurrentItem() != position) {
+                viewPager.setCurrentItem(position, true);
+            }
+        });
+
         if (isFirstLaunch()) {
             startActivity(new Intent(this, LoginActivity.class));
             finish();
@@ -119,11 +131,6 @@ public class MainActivity extends AppCompatActivity {
         }
         return false;
     }
-    public void setFabVisibility(int visibility) {
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setVisibility(visibility);
-    }
-
     private void showNoInternetDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_no_internet, null);

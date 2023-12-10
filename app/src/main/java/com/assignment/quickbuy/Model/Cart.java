@@ -4,8 +4,20 @@ public class Cart {
     private String pid;
     private String pname;
     private String image;
-    private String price;
+    private double price;
     private int quantity;
+
+    public Cart() {
+        // Default constructor required for Firebase
+    }
+
+    public Cart(String pid, String pname, String image, double price, int quantity) {
+        this.pid = pid;
+        this.pname = pname;
+        this.image = image;
+        this.price = price;
+        this.quantity = quantity;
+    }
 
     public String getPid() {
         return pid;
@@ -31,11 +43,11 @@ public class Cart {
         this.image = image;
     }
 
-    public String getPrice() {
+    public double getPrice() {
         return price;
     }
 
-    public void setPrice(String price) {
+    public void setPrice(double price) {
         this.price = price;
     }
 
@@ -44,14 +56,6 @@ public class Cart {
     }
 
     public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
-
-    public Cart(String pid, String pname, String image, String price, int quantity) {
-        this.pid = pid;
-        this.pname = pname;
-        this.image = image;
-        this.price = price;
         this.quantity = quantity;
     }
 }

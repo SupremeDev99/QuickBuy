@@ -7,8 +7,8 @@
         app:showAsAction="ifRoom|collapseActionView"
         app:actionViewClass="androidx.appcompat.widget.SearchView" />
     <item
-        android:id="@+id/menu_profile"
-        android:title="Profile" />
+        android:id="@+id/menu_about"
+        android:title="About" />
     <item
         android:id="@+id/menu_logout"
         android:title="Log Out" />

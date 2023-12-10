@@ -1,6 +1,8 @@
 package com.assignment.quickbuy;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
@@ -26,13 +28,14 @@ public class ConfirmFinalOrderActivity extends AppCompatActivity {
     private EditText etxtFullName ,etxtPhoneNumber,etxtHomeAddress,etxtCityName;
     private Button shippmentBackbtn,shippmentConfirmBtn;
     private String totalAmount="";
+    private SharedPreferences sharedPreferences;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_confirm_final_order);
-
+        sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         totalAmount=getIntent().getStringExtra("Total Price");
-        Toast.makeText(this, "Total Price is :"+totalAmount, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Total Price is : "+totalAmount+"$", Toast.LENGTH_SHORT).show();
         etxtFullName=(EditText)findViewById(R.id.shippment_name);
         etxtPhoneNumber=(EditText)findViewById(R.id.shippment_phone);
         etxtHomeAddress=(EditText)findViewById(R.id.shippment_home_address);
@@ -40,12 +43,20 @@ public class ConfirmFinalOrderActivity extends AppCompatActivity {
         shippmentBackbtn=(Button)findViewById(R.id.shippment_back_btn);
         shippmentConfirmBtn=(Button)findViewById(R.id.shippment_confirm_btn);
 
+        shippmentBackbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
         shippmentConfirmBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 check();
             }
         });
+
     }
 
     private void check()
@@ -73,54 +84,32 @@ public class ConfirmFinalOrderActivity extends AppCompatActivity {
 
     }
 
-    private void confirmOrder()
-    {
-        Calendar calendar = Calendar.getInstance();
-
-        SimpleDateFormat currentDate = new SimpleDateFormat("MMM dd, yyyy");
-        String saveCurrentDate = currentDate.format(calendar.getTime());
-
-        SimpleDateFormat currentTime = new SimpleDateFormat("HH:mm:ss a");
-        String saveCurrentTime = currentTime.format(calendar.getTime());
-
-        final DatabaseReference OrdersRef=FirebaseDatabase.getInstance().getReference()
-                .child("Orders")
-                .child(Prevalent.currentOnlineUser.getPhone());
-
-        HashMap<String ,Object>orderMap=new HashMap<>();
-        orderMap.put("Total Amount",totalAmount);
-        orderMap.put("Name",etxtFullName.getText().toString());
-        orderMap.put("Phone",etxtPhoneNumber.getText().toString());
-        orderMap.put("Address",etxtHomeAddress.getText().toString());
-        orderMap.put("City",etxtCityName.getText().toString());
-        orderMap.put("date",saveCurrentDate);
-        orderMap.put("time",saveCurrentTime);
-        orderMap.put("State","not shipped");
-
-        OrdersRef.updateChildren(orderMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful())
-                {
-                    FirebaseDatabase.getInstance().getReference().child("User View")
-                            .child(Prevalent.currentOnlineUser.getPhone())
-                            .removeValue()
-                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if(task.isSuccessful())
-                                    {
-                                        Toast.makeText(ConfirmFinalOrderActivity.this, "Order will be Placed", Toast.LENGTH_SHORT).show();
-                                        Intent intent=new Intent(ConfirmFinalOrderActivity.this,MainActivity.class);
-                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
-                                        startActivity(intent);
-                                        finish();
-                                    }
-                                }
-                            });
-                }
-            }
-        });
+    private void confirmOrder() {
+        removeCartItems();
+        Intent intent = new Intent(ConfirmFinalOrderActivity.this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
+    private void removeCartItems() {
+        DatabaseReference cartListRef = FirebaseDatabase.getInstance().getReference().child("Cart List");
+        String userUID = sharedPreferences.getString("user_uid", "");
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        cartListRef.child("User View").child(userUID).child("Products").removeValue()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(ConfirmFinalOrderActivity.this, "Order will be Placed", Toast.LENGTH_SHORT).show();
+                            editor.putBoolean("ordered", true);
+                            editor.apply();
+
+                        } else {
+                            Toast.makeText(ConfirmFinalOrderActivity.this, "Failed!", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
 }

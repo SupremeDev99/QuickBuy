@@ -17,7 +17,7 @@ public class CartViewHolder extends RecyclerView.ViewHolder {
     public TextView txtProductPrice;
     public TextView txtProductTotalPrice;
     public ImageView imgProductImage;
-    private View vRectangle_edit;
+    public View vRectangle_edit;
     public View vRectangle_delete;
 
     public CartViewHolder(@NonNull View itemView) {
