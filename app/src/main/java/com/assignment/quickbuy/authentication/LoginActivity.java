@@ -1,32 +1,27 @@
 package com.assignment.quickbuy.authentication;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.assignment.quickbuy.MainActivity;
-import com.assignment.quickbuy.R;
-
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.assignment.quickbuy.Animations;
+import com.assignment.quickbuy.MainActivity;
+import com.assignment.quickbuy.R;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.firebase.auth.AuthResult;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
+
+import java.util.Objects;
 
 public class LoginActivity extends AppCompatActivity {
 
     private TextInputEditText editTextEmail, editTextPassword;
-    private Button buttonLogin;
-    private TextView textViewRegister,forgetPass,buttonSkipLogin;
-
     private FirebaseAuth auth;
 
     @Override
@@ -38,63 +33,80 @@ public class LoginActivity extends AppCompatActivity {
 
         editTextEmail = findViewById(R.id.editTextEmail);
         editTextPassword = findViewById(R.id.editTextPassword);
-        buttonLogin = findViewById(R.id.buttonLogin);
-        buttonSkipLogin = findViewById(R.id.buttonSkipLogin);
-        textViewRegister = findViewById(R.id.textViewRegister);
-        forgetPass = findViewById(R.id.forgetPass);
+        Button buttonLogin = findViewById(R.id.buttonLogin);
+        TextView buttonSkipLogin = findViewById(R.id.buttonSkipLogin);
+        TextView textViewRegister = findViewById(R.id.textViewRegister);
+        TextView forgetPass = findViewById(R.id.forgetPass);
 
-        buttonLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                loginUser();
-            }
-        });
+        buttonLogin.setOnClickListener(v -> loginUser());
 
-        buttonSkipLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                skipLogin();
-            }
-        });
+        buttonSkipLogin.setOnClickListener(v -> skipLogin());
 
-        textViewRegister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
-                finish();
-            }
+        textViewRegister.setOnClickListener(v -> {
+            startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
+            Animations.animateSwipeRight(LoginActivity.this);
+            finish();
         });
-        forgetPass.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(LoginActivity.this, ForgotPasswordActivity.class));
-                finish();
-            }
+        forgetPass.setOnClickListener(v -> {
+            startActivity(new Intent(LoginActivity.this, ForgotPasswordActivity.class));
+            Animations.animateCard(LoginActivity.this);
+            finish();
         });
     }
 
     private void loginUser() {
-        String email = editTextEmail.getText().toString().trim();
-        String password = editTextPassword.getText().toString().trim();
+        String email = Objects.requireNonNull(editTextEmail.getText()).toString().trim();
+        String password = Objects.requireNonNull(editTextPassword.getText()).toString().trim();
+
+        if (email.isEmpty()) {
+            ((TextInputLayout) findViewById(R.id.emailTextInputLayout)).setError("Email cannot be empty");
+            return;
+        } else {
+            ((TextInputLayout) findViewById(R.id.emailTextInputLayout)).setError(null);
+            if (!isValidEmail(email)) {
+                ((TextInputLayout) findViewById(R.id.emailTextInputLayout)).setError("Invalid email address");
+                return;
+            } else {
+                ((TextInputLayout) findViewById(R.id.emailTextInputLayout)).setError(null);
+            }
+        }
+
+        if (password.isEmpty()) {
+            ((TextInputLayout) findViewById(R.id.passwordTextInputLayout)).setError("Password cannot be empty");
+            return;
+        } else {
+            ((TextInputLayout) findViewById(R.id.passwordTextInputLayout)).setError(null);
+        }
 
         auth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                            finish();
-                        } else {
-                            Toast.makeText(LoginActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
-                        }
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        String uid = Objects.requireNonNull(auth.getCurrentUser()).getUid();
+                        saveUserId(uid);
+                        Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                        Animations.animateZoom(LoginActivity.this);
+                        finish();
+                    } else {
+                        Toast.makeText(LoginActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
+    private void saveUserId(String uid) {
+        SharedPreferences sharedPreferences = LoginActivity.this.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("user_uid", uid);
+        editor.apply();
+    }
+
+    private boolean isValidEmail(CharSequence email) {
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    }
+
     private void skipLogin() {
-        // Handle the "Skip" button click
         startActivity(new Intent(LoginActivity.this, MainActivity.class));
+        Animations.animateFade(LoginActivity.this);
         finish();
     }
 }

@@ -2,6 +2,7 @@ pluginManagement {
     repositories {
         maven { url 'https://jitpack.io' }
         google()
+        jcenter()
         mavenCentral()
         gradlePluginPortal()
     }
@@ -11,9 +12,11 @@ dependencyResolutionManagement {
     repositories {
         maven { url 'https://jitpack.io' }
         google()
+        jcenter()
         mavenCentral()
     }
 }
 
 rootProject.name = "QuickBuy"
 include ':app'
+include ':bubblenavigation'

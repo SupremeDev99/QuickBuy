@@ -24,6 +24,11 @@
         <activity android:name=".authentication.LoginActivity" />
         <activity android:name=".authentication.RegisterActivity" />
         <activity android:name=".authentication.ForgotPasswordActivity" />
+        <activity android:name=".ConfirmFinalOrderActivity"/>
+        <activity android:name=".CartActivity" />
+        <activity android:name=".ProductDetailsActivity" />
+        <activity android:name=".AddProductActivity" />
+        <activity android:name=".CategoryActivity" />
     </application>
 
 </manifest>

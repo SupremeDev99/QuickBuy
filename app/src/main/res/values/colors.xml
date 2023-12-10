@@ -1,6 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="blue">#005b96</color>
+    <color name="colorAccent">#6750A4</color>
+    <color name="colorPrimaryDark">#6750A4</color>
+
+    <color name="red_active">#f44336</color>
+    <color name="purple_active">#9c27b0</color>
+    <color name="green_active">#4caf50</color>
+
+    <color name="red_inactive">#e57373</color>
+    <color name="purple_inactive">#ba68c8</color>
+    <color name="green_inactive">#81c784</color>
+
+    <color name="red_bg_light">#ffebee</color>
+    <color name="purple_bg_light">#f3e5f5</color>
+    <color name="green_bg_light">#e8f5e9</color>
+
+    <color name="default_inactive_shape_color">#e5e5e5</color>
+    <color name="default_inactive_color">#212121</color>
+    <color name="default_badge_background_color">#f44336</color>
+    <color name="default_badge_text_color">#ffffff</color>
+    <color name="product_name_color">#070707</color>
+    <color name="price_color">#1fb07c</color>
+    <color name="rectangle_5_color">#faa21d</color>
+    <color name="_1_color">#faa21d</color>
 </resources>
